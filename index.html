@@ -7,31 +7,48 @@
 </head>
 <body>
     <h2>Akses Kamera & Simpan Gambar</h2>
-    <input type="file" accept="image/*" capture="environment" id="cameraInput">
+    <video id="video" autoplay style="width: 640px; height: 480px;"></video>
+    <br>
+    <button id="capture">Ambil Gambar</button>
+    <br>
+    <canvas id="canvas" style="display:none;"></canvas>
     <br>
     <img id="preview" style="display:none; width: 640px; height: 480px; margin-top: 10px;" />
     <br>
     <a id="download" style="display:none;">Download Gambar</a>
 
     <script>
-        const cameraInput = document.getElementById('cameraInput');
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture');
+        const canvas = document.getElementById('canvas');
         const preview = document.getElementById('preview');
         const downloadLink = document.getElementById('download');
-
-        cameraInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    downloadLink.href = e.target.result;
-                    downloadLink.download = 'captured_image.png';
-                    downloadLink.style.display = 'block';
-                    downloadLink.textContent = 'Download Gambar';
-                };
-                reader.readAsDataURL(file);
-            }
+        
+        // Akses kamera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error mengakses kamera:', error);
+            });
+        
+        // Ambil gambar dari video
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Tampilkan hasil
+            preview.src = canvas.toDataURL('image/png');
+            preview.style.display = 'block';
+            
+            // Simpan gambar
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = 'captured_image.png';
+            downloadLink.style.display = 'block';
+            downloadLink.textContent = 'Download Gambar';
         });
     </script>
 </body>
