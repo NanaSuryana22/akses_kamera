@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akses Kamera & Simpan Gambar</title>
+</head>
+<body>
+    <h2>Akses Kamera & Simpan Gambar</h2>
+    <video id="video" width="640" height="480" autoplay></video>
+    <br>
+    <button id="capture">Ambil Gambar</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <br>
+    <a id="download" style="display:none;">Download Gambar</a>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const downloadLink = document.getElementById('download');
+        const ctx = canvas.getContext('2d');
+
+        // Akses kamera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Gagal mengakses kamera:', error);
+            });
+
+        // Ambil gambar dari video
+        captureButton.addEventListener('click', () => {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataURL = canvas.toDataURL('image/png');
+            
+            // Tampilkan link download
+            downloadLink.href = imageDataURL;
+            downloadLink.download = 'captured_image.png';
+            downloadLink.style.display = 'block';
+            downloadLink.textContent = 'Download Gambar';
+        });
+    </script>
+</body>
+</html>
